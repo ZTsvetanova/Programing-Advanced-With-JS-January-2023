@@ -1,0 +1,76 @@
+function solve() {
+  document.querySelector("#btnSend").addEventListener("click", onClick);
+
+  function onClick() {
+    // Get the input values
+    let input = document.getElementById("input").value;
+    let output = document.getElementById("output");
+
+    // Split the input into an array of strings
+    let inputArray = input.split("\n");
+
+    // Initialize an empty object to store restaurant workers
+    let restaurants = {};
+
+    // Iterate over the input array
+    for (const str of inputArray) {
+      let [restaurant, worker, salary] = str.split(", ");
+      salary = parseFloat(salary);
+
+      // Check if the restaurant already exists in the object
+      if (restaurant in restaurants) {
+        // If the restaurant exists, update the worker count, total salary, and best salary
+        restaurants[restaurant]["workerCount"]++;
+        restaurants[restaurant]["totalSalary"] += salary;
+        restaurants[restaurant]["bestSalary"] = Math.max(
+          restaurant[restaurant]["bestSalary"],
+          salary
+        );
+        restaurants[restaurant]["workers"].push({ worker, salary });
+      } else {
+        // If the restaurant does not exist, create a new entry in the object
+        restaurants[restaurant] = {
+          workerCount: 1,
+          totalSalary: salary,
+          bestSalary: salary,
+          workers: [{ worker, salary }],
+        };
+      }
+    }
+
+    // Find the best restaurant based on average salary
+    let bestRestaurant = null;
+    let highestAvgSalary = 0;
+    for (const restaurant in restaurants) {
+      let avgSalary =
+        restaurants[restaurant]["totalSalary"] /
+        restaurants[restaurant]["workerCount"];
+      if (avgSalary > highestAvgSalary) {
+        highestAvgSalary = avgSalary;
+        bestRestaurant = restaurant;
+      }
+    }
+
+    // Sort the workers of the best restaurant based on salary
+    restaurants[bestRestaurant]["workers"].sort((a, b) => b.salary - a.salary);
+
+    // Display the best restaurant, average salary, and best salary
+    output.innerHTML =
+      "Best restaurant: " +
+      bestRestaurant +
+      "<br>" +
+      "Average salary: " +
+      highestAvgSalary.toFixed(2) +
+      "<br>" +
+      "Best salary: " +
+      restaurants[bestRestaurant]["bestSalary"] +
+      "<br>" +
+      "Workers:<br>";
+
+    // Display the workers of the best restaurant
+    for (const worker of restaurants[bestRestaurant]["workers"]) {
+      output.innerHTML +=
+        worker.worker + " - $" + worker.salary.toFixed(2) + "<br>";
+    }
+  }
+}
